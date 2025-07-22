@@ -4,6 +4,25 @@ title: "VirtualiZarr examples"
 
 ## Overview
 
+This workshop will include a mostly self-guided exploration of VirtualiZarr 2.0 for either pre-constructed examples or your own data.
+
+You can find out more about VirtualiZarr on [readthedocs](https://virtualizarr.readthedocs.io/en/stable/index.html) and explore the
+[source code on GitHub](https://github.com/zarr-developers/VirtualiZarr). If you're familiar with VirtualiZarr 1.0, check out the
+[migration guide](https://virtualizarr.readthedocs.io/en/stable/migration_guide.html) for information about how this new release differs.
+
+You can download the source code from GitHub:
+
+```bash
+git clone git@github.com:virtual-zarr/esip-2025.git
+cd esip-2025
+```
+
+You can use [pixi](https://pixi.sh/latest/) to create an environment for these examples. After installing pixi, create an environment from the
+lock file via:
+
+```bash
+pixi install
+```
 
 ## License
 

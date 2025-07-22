@@ -15,6 +15,10 @@ website:
     contents:
       - href: index.qmd
         text: Home
+      - section: Examples
+        contents:
+          - href: examples/01_AWS_Public_Data_Program_NetCDF.ipynb
+            text: Walk through - NetCDFs on AWS
 
 format:
 

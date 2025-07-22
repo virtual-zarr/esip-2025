@@ -7,7 +7,6 @@ authors = [
 requires-python = ">=3.11"
 dependencies = [
     "virtualizarr>=2.0.0",
-    "ipykernel",
 ]
 
 dynamic = [
@@ -36,3 +35,14 @@ platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
+
+[tool.pixi.dependencies]
+jupyter = ">=1.1.1,<2"
+rasterio = ">=1.4.3,<2"
+rioxarray = "*"
+xarray = "==2025.6.0"
+virtualizarr = "==2.0.0"
+ipykernel = ">=6.29.5,<7"
+pip = ">=25.1.1,<26"
+icechunk = ">=1.0.0,<2"
+h5py = ">=3.14.0,<4"
