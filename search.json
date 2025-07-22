@@ -39,5 +39,16 @@
       "Examples",
       "Walk through - NetCDFs on AWS"
     ]
+  },
+  {
+    "objectID": "examples/02_ESGF_NetCDF_Solution.html",
+    "href": "examples/02_ESGF_NetCDF_Solution.html",
+    "title": "Hands-on - Virtualize NetCDF from ESGF",
+    "section": "",
+    "text": "This example uses data from the Earth System Grid Federation THREDDS Data Server.\nThis is a quicker example for hands-on experience. For a full walkthrough, view previous example on the NASA-NEX-GDDP CMIP6 data.\nThank you to Raphael Hagen for contributing this example!\n\nStep 1: Import necessary functions and classes\n\nfrom obstore.store import HTTPStore\nfrom virtualizarr import open_virtual_dataset\nfrom virtualizarr.parsers import HDFParser\nfrom virtualizarr.registry import ObjectStoreRegistry\n\n\n\nStep 2: Define data location\n\nbucket = \"https://esgf-data.ucar.edu\"\npath = \"thredds/fileServer/esg_dataroot/CMIP6/CMIP/NCAR/CESM2/historical/r3i1p1f1/day/tas/gn/v20190308/tas_day_CESM2_historical_r3i1p1f1_gn_19200101-19291231.nc\"\n\n\n\nStep 3: Create an ObjectStore and an ObjectStoreRegistry\n\nstore = HTTPStore.from_url(bucket)\nregistry = ObjectStoreRegistry({bucket: store})\n\n\n\nStep 4: Create an instance of the HDFParser\n\nparser = HDFParser()\n\n\n\nStep 5: Create a virtual dataset via open_virtual_dataset\n\nvds = open_virtual_dataset(\n    url=f\"{bucket}/{path}\",\n    parser=parser,\n    registry=registry,\n    loadable_variables=[\"lat\", \"lon\", \"time\", \"time_bnds\", \"lat_bnds\", \"lon_bnds\"],\n)\n\n\nvds",
+    "crumbs": [
+      "Examples",
+      "Hands on - NetCDFs from ESGF"
+    ]
   }
 ]

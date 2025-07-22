@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Walk-through - Virtualizing NetCDFs from Amazon’s Open Data Program</title>
+<title>Hands-on - Virtualize NetCDF from ESGF</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -282,7 +282,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../examples/01_AWS_Public_Data_Program_NetCDF.html">Examples</a></li><li class="breadcrumb-item"><a href="../examples/01_AWS_Public_Data_Program_NetCDF.html">Walk through - NetCDFs on AWS</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../examples/01_AWS_Public_Data_Program_NetCDF.html">Examples</a></li><li class="breadcrumb-item"><a href="../examples/02_ESGF_NetCDF_Solution.html">Hands on - NetCDFs from ESGF</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -328,13 +328,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../examples/01_AWS_Public_Data_Program_NetCDF.html" class="sidebar-item-text sidebar-link active">
+  <a href="../examples/01_AWS_Public_Data_Program_NetCDF.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Walk through - NetCDFs on AWS</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../examples/02_ESGF_NetCDF_Solution.html" class="sidebar-item-text sidebar-link">
+  <a href="../examples/02_ESGF_NetCDF_Solution.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Hands on - NetCDFs from ESGF</span></a>
   </div>
 </li>
@@ -350,9 +350,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../examples/01_AWS_Public_Data_Program_NetCDF.html">Examples</a></li><li class="breadcrumb-item"><a href="../examples/01_AWS_Public_Data_Program_NetCDF.html">Walk through - NetCDFs on AWS</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../examples/01_AWS_Public_Data_Program_NetCDF.html">Examples</a></li><li class="breadcrumb-item"><a href="../examples/02_ESGF_NetCDF_Solution.html">Hands on - NetCDFs from ESGF</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Walk-through - Virtualizing NetCDFs from Amazon’s Open Data Program</h1>
+<h1 class="title">Hands-on - Virtualize NetCDF from ESGF</h1>
 </div>
 
 
@@ -369,73 +369,54 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Let’s start with the first example from the <a href="https://virtualizarr.readthedocs.io/en/stable/index.html#features">VirtualiZarr homepage</a>.</p>
-<p>This example uses the <a href="https://registry.opendata.aws/nex-gddp-cmip6/">NASA Earth Exchange Global Daily Downscaled Projections</a> (NEX-GDDP-CMIP6) from the Registry of Open Data on AWS. The virtualization process will be much faster if run proximal to the data in AWS’s us-west-2 region.</p>
-<p>Creating the virtual dataset looks quite similar to how we normally open data with <a href="https://docs.xarray.dev/en/stable/index.html#module-xarray">xarray</a>, but there are a few notable differences that are shown through this example.</p>
-<p>First, import the necessary functions and classes:</p>
-<div id="440dfe73" class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> icechunk</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> obstore</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> virtualizarr <span class="im">import</span> open_virtual_dataset, open_virtual_mfdataset</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> virtualizarr.parsers <span class="im">import</span> HDFParser</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> virtualizarr.registry <span class="im">import</span> ObjectStoreRegistry</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This example uses data from the <a href="https://esgf-data.ucar.edu/thredds/catalog/catalog.html">Earth System Grid Federation THREDDS Data Server</a>.</p>
+<p>This is a quicker example for hands-on experience. For a full walkthrough, view previous example on the NASA-NEX-GDDP CMIP6 data.</p>
+<p>Thank you to Raphael Hagen for contributing this example!</p>
+<section id="step-1-import-necessary-functions-and-classes" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-import-necessary-functions-and-classes">Step 1: Import necessary functions and classes</h3>
+<div id="c8ecb7bc" class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> obstore.store <span class="im">import</span> HTTPStore</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> virtualizarr <span class="im">import</span> open_virtual_dataset</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> virtualizarr.parsers <span class="im">import</span> HDFParser</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> virtualizarr.registry <span class="im">import</span> ObjectStoreRegistry</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Zarr can emit a lot of warnings about Numcodecs not being including in the Zarr version 3 specification yet – let’s suppress those.</p>
-<div id="c6f334fd" class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ignore"</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    message<span class="op">=</span><span class="st">"Numcodecs codecs are not in the Zarr version 3 specification*"</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    category<span class="op">=</span><span class="pp">UserWarning</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="step-2-define-data-location" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-define-data-location">Step 2: Define data location</h3>
+<div id="24f5b227" class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>bucket <span class="op">=</span> <span class="st">"https://esgf-data.ucar.edu"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>path <span class="op">=</span> <span class="st">"thredds/fileServer/esg_dataroot/CMIP6/CMIP/NCAR/CESM2/historical/r3i1p1f1/day/tas/gn/v20190308/tas_day_CESM2_historical_r3i1p1f1_gn_19200101-19291231.nc"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We can use Obstore’s <a href="https://developmentseed.org/obstore/latest/api/store/#obstore.store.from_url"><code>obstore.store.from_url</code></a> convenience method to create an <a href="https://developmentseed.org/obstore/latest/api/store/#obstore.store.ObjectStore"><code>ObjectStore</code></a> that can fetch data from the specified URLs.</p>
-<div id="0351e260" class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bucket <span class="op">=</span> <span class="st">"s3://nex-gddp-cmip6"</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>path <span class="op">=</span> <span class="st">"NEX-GDDP-CMIP6/ACCESS-CM2/ssp126/r1i1p1f1/tasmax/tasmax_day_ACCESS-CM2_ssp126_r1i1p1f1_gn_2015_v2.0.nc"</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>store <span class="op">=</span> obstore.store.from_url(bucket, region<span class="op">=</span><span class="st">"us-west-2"</span>, skip_signature<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="step-3-create-an-objectstore-and-an-objectstoreregistry" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-create-an-objectstore-and-an-objectstoreregistry">Step 3: Create an ObjectStore and an ObjectStoreRegistry</h3>
+<div id="4a276534" class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>store <span class="op">=</span> HTTPStore.from_url(bucket)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>registry <span class="op">=</span> ObjectStoreRegistry({bucket: store})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We also need to create an <a href="https://virtualizarr.readthedocs.io/en/stable/api/developer.html#virtualizarr.registry.ObjectStoreRegistry">ObjectStoreRegistry</a> that maps the URL structure to the ObjectStore.</p>
-<div id="8c76cdf4" class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>registry <span class="op">=</span> ObjectStoreRegistry({bucket: store})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="step-4-create-an-instance-of-the-hdfparser" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-create-an-instance-of-the-hdfparser">Step 4: Create an instance of the HDFParser</h3>
+<div id="606d0762" class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>parser <span class="op">=</span> HDFParser()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Now, let’s create a parser instance and create a virtual dataset by passing the URL, parser, and registry to <a href="https://virtualizarr.readthedocs.io/en/stable/api/virtualizarr.html#virtualizarr.open_virtual_dataset"><code>virtualizarr.open_virtual_dataset</code></a>.</p>
-<div id="8f4325c3" class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>parser <span class="op">=</span> HDFParser()</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>vds <span class="op">=</span> open_virtual_dataset(</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    url<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>bucket<span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>path<span class="sc">}</span><span class="ss">"</span>,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    parser<span class="op">=</span>parser,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    registry<span class="op">=</span>registry,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    loadable_variables<span class="op">=</span>[],</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(vds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="step-5-create-a-virtual-dataset-via-open_virtual_dataset" class="level3">
+<h3 class="anchored" data-anchor-id="step-5-create-a-virtual-dataset-via-open_virtual_dataset">Step 5: Create a virtual dataset via open_virtual_dataset</h3>
+<div id="79f80e72" class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>vds <span class="op">=</span> open_virtual_dataset(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    url<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>bucket<span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>path<span class="sc">}</span><span class="ss">"</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    parser<span class="op">=</span>parser,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    registry<span class="op">=</span>registry,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    loadable_variables<span class="op">=</span>[<span class="st">"lat"</span>, <span class="st">"lon"</span>, <span class="st">"time"</span>, <span class="st">"time_bnds"</span>, <span class="st">"lat_bnds"</span>, <span class="st">"lon_bnds"</span>],</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Since we specified <code>loadable_variables=[]</code>, no data has been loaded or copied in this process. We have merely created an in-memory lookup table that points to the location of chunks in the original netCDF when data is needed later on. The default behavior (<code>loadable_variables=None</code>) will load data associated with coordinates but not data variables. The size represents the size of the original dataset - you can see the size of the virtual dataset using the vz accessor:</p>
-<div id="6e76c705" class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Original dataset size: </span><span class="sc">{</span>vds<span class="sc">.</span>nbytes<span class="sc">}</span><span class="ss"> bytes"</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Virtual dataset size: </span><span class="sc">{</span>vds<span class="sc">.</span>vz<span class="sc">.</span>nbytes<span class="sc">}</span><span class="ss"> bytes"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>VirtualiZarr’s other top-level function is <a href="https://virtualizarr.readthedocs.io/en/stable/api/virtualizarr.html#virtualizarr.open_virtual_mfdataset"><code>virtualizarr.open_virtual_mfdataset</code></a>, which can open and virtualize multiple data sources into a single virtual dataset, similar to how <a href="https://docs.xarray.dev/en/stable/generated/xarray.open_mfdataset.html#xarray.open_mfdataset"><code>xarray.open_mfdataset</code></a> opens multiple data files as a single dataset.</p>
-<div id="d281c4ff" class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>urls <span class="op">=</span> [</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"s3://nex-gddp-cmip6/NEX-GDDP-CMIP6/ACCESS-CM2/ssp126/r1i1p1f1/tasmax/tasmax_day_ACCESS-CM2_ssp126_r1i1p1f1_gn_</span><span class="sc">{</span>year<span class="sc">}</span><span class="ss">_v2.0.nc"</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> year <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2015</span>, <span class="dv">2017</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>vds <span class="op">=</span> open_virtual_mfdataset(urls, parser<span class="op">=</span>parser, registry<span class="op">=</span>registry)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(vds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>The magic of VirtualiZarr is that you can persist the virtual dataset to disk in a chunk references format such as Icechunk, meaning that the work of constructing the single coherent dataset only needs to happen once. For subsequent data access, you can use xarray.open_zarr to open that Icechunk store, which on object storage is far faster than using xarray.open_mfdataset to open the the original non-cloud-optimized files.</p>
-<p>Let’s persist the Virtual dataset using Icechunk. Here we store the dataset in a memory store but in most cases you’ll store the virtual dataset in the cloud.</p>
-<div id="b99c2c85" class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>icechunk_store <span class="op">=</span> icechunk.in_memory_storage()</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>repo <span class="op">=</span> icechunk.Repository.create(icechunk_store)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>session <span class="op">=</span> repo.writable_session(<span class="st">"main"</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>vds.vz.to_icechunk(session.store)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>session.commit(<span class="st">"Create virtual store"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="a9e91818" class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>vds</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

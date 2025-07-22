@@ -2,10 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://virtual-zarr.github.io/esip-2025/index.html</loc>
-    <lastmod>2025-07-22T18:31:36.561Z</lastmod>
+    <lastmod>2025-07-22T19:25:50.936Z</lastmod>
   </url>
   <url>
     <loc>https://virtual-zarr.github.io/esip-2025/examples/01_AWS_Public_Data_Program_NetCDF.html</loc>
-    <lastmod>2025-07-22T18:31:36.561Z</lastmod>
+    <lastmod>2025-07-22T19:25:50.936Z</lastmod>
+  </url>
+  <url>
+    <loc>https://virtual-zarr.github.io/esip-2025/examples/02_ESGF_NetCDF_Solution.html</loc>
+    <lastmod>2025-07-22T19:25:50.936Z</lastmod>
   </url>
 </urlset>
