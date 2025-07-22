@@ -19,7 +19,8 @@ website:
         contents:
           - href: examples/01_AWS_Public_Data_Program_NetCDF.ipynb
             text: Walk through - NetCDFs on AWS
-
+          - href: examples/02_ESGF_NetCDF_Solution.ipynb
+            text: Hands on - NetCDFs from ESGF
 format:
 
   html:
